@@ -1,0 +1,37 @@
+Какие есть ограничения на расход - FICSALL-405?
+
+
+
+https://console.yandex.cloud/cloud/b1gg4ap6lni5ie5gno5e
+https://yandex.cloud/ru/docs/cli/quickstart#install
+https://yandex.cloud/ru/docs/iam/operations/iam-token/create
+https://yandex.cloud/ru/docs/foundation-models/quickstart/yandexgpt
+
+
+
+одинаково и просто:
+
+(done) раздел 5.2.docx
+(done) раздел 5.2_с критическими параметрами Петрофак.docx
+(done) раздел 7 Таблица 7.1.1.docx
+(done) РАЗДЕЛ 8.docx
+(done) РАЗДЕЛ 9 - 9.2,9.3,9.4,9.5.docx
+РАЗДЕЛ 10.docx
+
+
+РАЗДЕЛ 3.docx
+
+
+есть подстрочки:
+раздел 5.1 ОПУ.docx
+раздел 9 - 9.1.docx
+РАЗДЕЛ 4.docx - разделю на подстрочки (ТУТ МНОГО) и нормально будет
+РАЗДЕЛ 6.docx - разделю на подстрочки и нормально будет
+
+РАЗДЕЛ 1 - ОПУ Петрофак.docx - надо разделить на расход / приход
+РАЗДЕЛ 2 ОПУ.docx - надо разделить на подстрочки (внутри ячейки новая строчка)
+
+
+
+непонятно - обсудить с Айнуром:
+РАЗДЕЛ 7.docx
