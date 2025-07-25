@@ -360,7 +360,7 @@ EMBEDDING_MODELS = [
 embedding_model = st.sidebar.selectbox('Модель эмбеддингов:', tuple(EMBEDDING_MODELS),)
 db_type = st.sidebar.selectbox("Тип базы:", ("Chroma", "FAISS"))
 
-vector_db = initialize_vector_db(
+st.session_state.vector_db = initialize_vector_db(
     chunk_size=chunk_size,
     chunk_overlap=chunk_overlap,
     embedding_model=embedding_model,
