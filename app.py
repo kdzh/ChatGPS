@@ -1,4 +1,7 @@
 # Смотрим на баланс: https://console.yandex.cloud/cloud/b1gg4ap6lni5ie5gno5e
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 import requests
 from datetime import datetime
