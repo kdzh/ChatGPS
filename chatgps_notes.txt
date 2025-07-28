@@ -2,7 +2,22 @@
 
 
 
+Виртуальная машина:
+https://console.yandex.cloud/folders/b1gtotn7qiuqmsdnhidb/compute/instances
+
+Инструкция подключения к ВМ:
+https://yandex.cloud/ru/docs/compute/operations/vm-connect/ssh#linux-macos_2
+
+ssh -l kostya 158.160.153.191
+
+
+
+
+Текущий баланс:
 https://console.yandex.cloud/cloud/b1gg4ap6lni5ie5gno5e
+
+
+
 https://yandex.cloud/ru/docs/cli/quickstart#install
 https://yandex.cloud/ru/docs/iam/operations/iam-token/create
 https://yandex.cloud/ru/docs/foundation-models/quickstart/yandexgpt
@@ -35,3 +50,6 @@ https://yandex.cloud/ru/docs/foundation-models/quickstart/yandexgpt
 
 непонятно - обсудить с Айнуром:
 РАЗДЕЛ 7.docx
+
+
+
