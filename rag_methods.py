@@ -2,7 +2,7 @@ from pathlib import Path
 
 from langchain_community.vectorstores import FAISS
 from langchain_chroma import Chroma
-from langchain_community.document_loaders import DirectoryLoader, CSVLoader
+from langchain_community.document_loaders import DirectoryLoader, CSVLoader, UnstructuredWordDocumentLoader, TextLoader
 from langchain.text_splitter import Language, RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 
@@ -28,6 +28,17 @@ def initialize_vector_db(
             loader_cls=CSVLoader,
             loader_kwargs={"csv_args": {"delimiter": ";"}},
         ),
+        # DirectoryLoader(
+        #     path="./data/data_processing/РАЗДЕЛ 6/",
+        #     glob="**/*.docx",
+        #     loader_cls=UnstructuredWordDocumentLoader,
+        #     loader_kwargs={"mode": "elements"}
+        # ),
+        DirectoryLoader(
+            path=DATA_DIR,  # Replace with your actual path
+            glob="**/*.txt",  # Recursively includes all .txt files
+            loader_cls=TextLoader  # Use TextLoader for plain text files
+        )
     ]
 
     # Load and combine documents from all loaders

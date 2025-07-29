@@ -12,6 +12,19 @@ ssh -l kostya 158.160.153.191
 
 
 
+# Временное
+python3 -m venv venv
+sudo ufw allow 8501
+
+
+
+source venv/bin/activate
+
+nohup streamlit run app.py --server.address=0.0.0.0 --server.port=8501
+
+http://158.160.153.191:8501
+
+
 
 Текущий баланс:
 https://console.yandex.cloud/cloud/b1gg4ap6lni5ie5gno5e
