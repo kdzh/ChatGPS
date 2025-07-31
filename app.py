@@ -320,7 +320,7 @@ selected_model_name = st.sidebar.selectbox("Выберете модель", MODE
 
 
 YANDEX_FOLDER_ID = st.sidebar.text_input("Yandex ID облачного сервиса:", "b1gfbnbrsndktci2srd6")
-YANDEX_DEFAULT_TOKEN = 't1.9euelZrMjIuPy5aOjsiKx4mZjYmPze3rnpWaxpCPxpWXjpDOzM6dlceQxsrl8_ddWFg7-e8BIUhn_N3z9x0HVjv57wEhSGf8zef1656VmsmQjsnGipiQlsyTypeJi5fN7_zF656VmsmQjsnGipiQlsyTypeJi5fN.AEf2hUAfmEntubLYqIcfqGcz5CUfbbwV6cn2k6qa4j2RerXjUYV54QROFpQlE8hYDwbgfg1hdkTa--_e7v4TBQ'
+YANDEX_DEFAULT_TOKEN = 't1.9euelZqRy5eZlZGVjZSSjMyLysmPie3rnpWaxpCPxpWXjpDOzM6dlceQxsrl9Pd-NFM7-e9wRXPa3fT3PmNQO_nvcEVz2s3n9euelZrJxseSmsuYnYqWmM7JzZzNku_8xeuelZrJxseSmsuYnYqWmM7JzZzNkg.kDsNTFyZ5rz-x5QI8rKxd9NBYN6Vu_PpmNJibDURcV8MtAPikYT7lBF3H8xXk58w3w6oJjKXrbQIQYq5__wWAQ'
 YANDEX_TOKEN = st.sidebar.text_input("Yandex IAM-токен:", YANDEX_DEFAULT_TOKEN)
 
 
