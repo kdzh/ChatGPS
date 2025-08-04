@@ -20,9 +20,24 @@ sudo ufw allow 8501
 
 source venv/bin/activate
 
+streamlit run app.py --server.address=0.0.0.0 --server.port=8501
+
 nohup streamlit run app.py --server.address=0.0.0.0 --server.port=8501
 
 http://158.160.153.191:8501
+
+
+
+How to run:
+1) ssh -l kostya 158.160.153.191
+cd ~/Desktop/ChatGPS; source venv/bin/activate; streamlit run app.py --server.address=0.0.0.0 --server.port=8501
+
+2) http://158.160.153.191:8501
+
+
+
+
+source venv/bin/activate
 
 
 
