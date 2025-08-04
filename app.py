@@ -10,6 +10,7 @@ import subprocess
 import os
 from typing import Any, Generator, Optional, List
 
+from streamlit_mic_recorder import speech_to_text
 from langchain.chains import RetrievalQA
 from langchain.llms.base import LLM
 from langchain.schema import Generation
@@ -26,54 +27,8 @@ from rag_methods import (
 )
 
 
-
-
-
-# import streamlit as st
-from streamlit_mic_recorder import mic_recorder, speech_to_text
-
-state = st.session_state
-
-if 'text_received' not in state:
-    state.text_received = []
-
-c1, c2 = st.columns(2)
-with c1:
-    st.write("Convert speech to text:")
-with c2:
-    text = speech_to_text(language='en', use_container_width=True, just_once=True, key='STT')
-
-if text:
-    state.text_received.append(text)
-
-for text in state.text_received:
-    st.text(text)
-
-st.write("Record your voice, and play the recorded audio:")
-audio = mic_recorder(start_prompt="⏺️", stop_prompt="⏹️", key='recorder')
-
-if audio:
-    st.audio(audio['bytes'])
-
-
-
-
-
-
-
-
-
-
-
-####################################################################################################################
-
-
-
 USER_NAME = 'Пользователь'
 ASSISTANT_NAME = 'Ассистент'
-
-# YANDEX_FOLDER_ID = 'b1gfbnbrsndktci2srd6'
-# YANDEX_TOKEN = 't1.9euelZrLmc_PjY6cis6czMaezMyYne3rnpWaxpCPxpWXjpDOzM6dlceQxsrl8_d8OXg7-e8YcxdA_d3z9zxodTv57xhzF0D9zef1656VmoqNzMjPiYqQz87Hz47HzYya7_zF656VmoqNzMjPiYqQz87Hz47HzYya.z8VJIsOA90CCdgebWVdb8WeMOaQRi1PpOeVqChjQl8UwDB8QQNaVx1GBrTQcKS1Bk4r5MrWAC5H-2K9QkpIGCQ'
 
 env = os.environ.copy()
 env["IAM_TOKEN"] = (
@@ -339,7 +294,22 @@ st.sidebar.download_button(
 )
 
 
-# if st.sidebar.button("📄➜ Экспортировать чат"):
+def microphone_callback():
+    if st.session_state.text_received_from_the_mic:
+        print(st.session_state.text_received_from_the_mic)
+        st.session_state.text_received_from_the_mic = None
+
+
+with st.sidebar:
+    st.session_state.text_received_from_the_mic = speech_to_text(
+        language='ru',
+        start_prompt="🎤 Вкл. запись",
+        stop_prompt="🎤 Выкл. запись",
+        just_once=True,
+        use_container_width=False,
+        callback=microphone_callback,
+        key='STT'
+    )
 
 
 
@@ -362,7 +332,7 @@ selected_model_name = st.sidebar.selectbox("Выберете модель", MODE
 
 
 YANDEX_FOLDER_ID = st.sidebar.text_input("Yandex ID облачного сервиса:", "b1gfbnbrsndktci2srd6")
-YANDEX_DEFAULT_TOKEN = 't1.9euelZrPyMbKkZmVlMzGk8aSl5uNlu3rnpWaxpCPxpWXjpDOzM6dlceQxsrl9fd8Y007-e9HS-Td9fc8Eks7-e9HS-TN5_XrnpWanZCNnJaZmcublsaTnsrPzJrv_MXrnpWanZCNnJaZmcublsaTnsrPzJo.LElEPHJ5v2VnSwQRIpbSkGp2ODh10dvks3-vbiA5ZwPTcVs5XwOV6SKCcDYyD5zxc4Ta1eM9jHaLS1aYZUKMCg'
+YANDEX_DEFAULT_TOKEN = 't1.9euelZrPi4_IxouQj8iPyJmPkIzNze3rnpWaxpCPxpWXjpDOzM6dlceQxsrl9Pd7Pj07-e8UEA7H3fT3O206O_nvFBAOx83n9euelZqJzsyLjZvHmsqXmsaOipaJyO_8xeuelZqJzsyLjZvHmsqXmsaOipaJyA.pFo8Cp4MYQR3iSwP0Lj0e8VdbJT8d0z_sHBC05igwJTs908ciB6EQYBf7dg_abR5U863Ri8n6jFe3TG051NgCA'
 YANDEX_TOKEN = st.sidebar.text_input("Yandex IAM-токен:", YANDEX_DEFAULT_TOKEN)
 
 
@@ -497,7 +467,11 @@ if st.session_state.messages:
     # st.markdown('</div>', unsafe_allow_html=True)
 
 
-if prompt := st.chat_input("Type your message..."):
+if prompt := st.chat_input("Начните печатать сюда...") or st.session_state.text_received_from_the_mic:
+    if st.session_state.text_received_from_the_mic:
+        prompt = st.session_state.text_received_from_the_mic
+        st.session_state.text_received_from_the_mic = None
+
     now = datetime.now().strftime("%H:%M")
 
     # st.markdown(
