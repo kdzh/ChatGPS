@@ -17,6 +17,10 @@ from langchain.schema import Generation
 from langchain.schema import HumanMessage, AIMessage
 from langchain_core.prompts import PromptTemplate
 
+from rank_bm25 import BM25Okapi
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+import torch
+
 import streamlit as st
 
 
@@ -26,6 +30,11 @@ from rag_methods import (
     initialize_vector_db,
 )
 
+
+if "reranker_tokenizer" not in st.session_state:
+    reranker_name = "BAAI/bge-reranker-large"
+    st.session_state.reranker_tokenizer = AutoTokenizer.from_pretrained(reranker_name)
+    st.session_state.reranker_model = AutoModelForSequenceClassification.from_pretrained(reranker_name)
 
 USER_NAME = 'Пользователь'
 ASSISTANT_NAME = 'Ассистент'
@@ -232,7 +241,40 @@ class YandexLLM(LLM):
         return obj["result"]['alternatives'][0]["message"]["text"]
 
 
+def perform_reranking(prompt, docs):
+    # BM25 ранжирование по топ-20
+    tokenized_corpus = [doc.page_content.split() for doc in docs]
+    bm25 = BM25Okapi(tokenized_corpus)
+    bm25_scores = bm25.get_scores(prompt.split())
 
+    # top-10 по BM25
+    bm25_ranked = [doc for score, doc in sorted(zip(bm25_scores, docs), key=lambda x: x[0], reverse=True)][:10]
+
+    def rerank(query, docs, tokenizer, model):
+        pairs = [(query, doc.page_content) for doc in docs]
+        inputs = tokenizer(
+            [q for q, d in pairs],
+            [d for q, d in pairs],
+            return_tensors='pt',
+            padding=True,
+            truncation=True
+        )
+        with torch.no_grad():
+            scores = model(**inputs).logits.squeeze()
+
+        # Отсортировать по убыванию
+        sorted_docs = [doc for _, doc in sorted(zip(scores, docs), reverse=True)]
+        return sorted_docs
+
+    # top-5 лучших документов
+    reranked_docs = rerank(
+        prompt,
+        bm25_ranked,
+        st.session_state.reranker_tokenizer,
+        st.session_state.reranker_model
+    )[:5]
+
+    return reranked_docs
 
 
 initial_prompt_template = """Отвечай по-русски. Если не знаешь ответа, просто скажи, что ты не знаешь.
@@ -332,7 +374,7 @@ selected_model_name = st.sidebar.selectbox("Выберете модель", MODE
 
 
 YANDEX_FOLDER_ID = st.sidebar.text_input("Yandex ID облачного сервиса:", "b1gfbnbrsndktci2srd6")
-YANDEX_DEFAULT_TOKEN = 't1.9euelZrPi4_IxouQj8iPyJmPkIzNze3rnpWaxpCPxpWXjpDOzM6dlceQxsrl9Pd7Pj07-e8UEA7H3fT3O206O_nvFBAOx83n9euelZqJzsyLjZvHmsqXmsaOipaJyO_8xeuelZqJzsyLjZvHmsqXmsaOipaJyA.pFo8Cp4MYQR3iSwP0Lj0e8VdbJT8d0z_sHBC05igwJTs908ciB6EQYBf7dg_abR5U863Ri8n6jFe3TG051NgCA'
+YANDEX_DEFAULT_TOKEN = 't1.9euelZqYnIuSx5DOycnIyZyRypaSju3rnpWaxpCPxpWXjpDOzM6dlceQxsrl9PcuUjg7-e82BRWc3fT3bgA2O_nvNgUVnM3n9euelZqMxpSJmJWbjZiXyJuWjZSez-_8xeuelZqMxpSJmJWbjZiXyJuWjZSezw.2trpuniug7EGhkdULmzeVpr6YbV0NdTCHVaRoWKgQLV9G0mXXOBi-j7pMJAnhBdHM7j6tDaUcihu7RxmzeLjDA'
 YANDEX_TOKEN = st.sidebar.text_input("Yandex IAM-токен:", YANDEX_DEFAULT_TOKEN)
 
 
@@ -346,7 +388,8 @@ prompt_template = initial_prompt_template
 # st.sidebar.divider()
 
 st.sidebar.subheader("Параметры поисковика:")
-search_type = st.sidebar.selectbox('Тип поиска:', ('mmr', 'similarity', 'similarity_score_threshold'),)
+
+search_type = st.sidebar.selectbox('Тип поиска:', ('mmr', 'similarity', 'similarity_score_threshold', ),)
 score_threshold = st.sidebar.slider('Пороговое значение оценки (только если тип поиска similarity_score_threshold):', 0.0, 1.0, 0.5)
 top_k_limit = st.sidebar.number_input(
     "Лимит на кол-во возвращаемых документов",
@@ -357,6 +400,9 @@ top_k_limit = st.sidebar.number_input(
     step=1
 )
 
+use_reranking = st.sidebar.checkbox("Использовать поверх BM25 + переранжирование", value=True)
+
+
 st.sidebar.subheader('Параметры векторной базы:')
 
 chunk_size = st.sidebar.number_input("Размер фрагмента:", min_value=100, max_value=10000, value=2000, step=1)
@@ -364,8 +410,8 @@ chunk_overlap = st.sidebar.number_input("Прекрытие фрагментов
 
 
 EMBEDDING_MODELS = [
-    "sentence-transformers/LaBSE",
     "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
+    "sentence-transformers/LaBSE",
     "DeepPavlov/rubert-base-cased-sentence"
 ]
 
@@ -501,6 +547,9 @@ if prompt := st.chat_input("Начните печатать сюда...") or st.
     retriever = st.session_state.vector_db.as_retriever(search_type=search_type, search_kwargs=retriever_search_kwargs)
 
     docs = retriever.invoke(prompt)
+
+    if use_reranking:
+        docs = perform_reranking(prompt, docs)
 
     numbered_chunks = []
     for i, doc in enumerate(docs):
