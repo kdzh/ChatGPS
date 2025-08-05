@@ -264,6 +264,7 @@ def perform_reranking(prompt, docs):
 
         # Отсортировать по убыванию
         sorted_docs = [doc for _, doc in sorted(zip(scores, docs), reverse=True)]
+
         return sorted_docs
 
     # top-5 лучших документов
