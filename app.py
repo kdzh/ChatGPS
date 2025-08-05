@@ -389,7 +389,7 @@ prompt_template = initial_prompt_template
 
 st.sidebar.subheader("Параметры поисковика:")
 
-search_type = st.sidebar.selectbox('Тип поиска:', ('mmr', 'similarity', 'similarity_score_threshold', ),)
+search_type = st.sidebar.selectbox('Тип поиска:', ('similarity', 'similarity_score_threshold', 'mmr'),)
 score_threshold = st.sidebar.slider('Пороговое значение оценки (только если тип поиска similarity_score_threshold):', 0.0, 1.0, 0.5)
 top_k_limit = st.sidebar.number_input(
     "Лимит на кол-во возвращаемых документов",
@@ -400,23 +400,23 @@ top_k_limit = st.sidebar.number_input(
     step=1
 )
 
-use_reranking = st.sidebar.checkbox("Использовать поверх BM25 + переранжирование", value=True)
+use_reranking = st.sidebar.checkbox("Использовать поверх BM25 + переранжирование", value=False)
 
 
 st.sidebar.subheader('Параметры векторной базы:')
 
-chunk_size = st.sidebar.number_input("Размер фрагмента:", min_value=100, max_value=10000, value=2000, step=1)
-chunk_overlap = st.sidebar.number_input("Прекрытие фрагментов:", min_value=1, max_value=1000, value=500, step=1)
+chunk_size = st.sidebar.number_input("Размер фрагмента:", min_value=100, max_value=10000, value=1000, step=1)
+chunk_overlap = st.sidebar.number_input("Прекрытие фрагментов:", min_value=1, max_value=1000, value=100, step=1)
 
 
 EMBEDDING_MODELS = [
-    "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
     "sentence-transformers/LaBSE",
+    "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
     "DeepPavlov/rubert-base-cased-sentence"
 ]
 
 embedding_model = st.sidebar.selectbox('Модель эмбеддингов:', tuple(EMBEDDING_MODELS),)
-db_type = st.sidebar.selectbox("Тип базы:", ("FAISS", "Chroma"))
+db_type = st.sidebar.selectbox("Тип базы:", ("Chroma", "FAISS"))
 
 st.session_state.vector_db = initialize_vector_db(
     chunk_size=chunk_size,
